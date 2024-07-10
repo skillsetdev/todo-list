@@ -8,6 +8,16 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <dialog id="project-dialog">
+      <form method="dialog" id="project-dialog-form">
+        <label>Name:<input type="text" name="name" required /></label>
+        <div>
+          <input type="submit" id="submit" value="Submit" />
+          <button autofocus id="project-close-button">Close</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="to-do-dialog"></dialog>
     <div id="main"></div>
     <button id="create-project">Create Project</button>
   </body>

@@ -32,10 +32,6 @@ function createToDo(parentProject, title, description) {
 }
 
 ////////////////DOM Manipulations////////////////
-function requestProjectName() {
-  const newName = prompt("Give your project a name!", "New Project");
-  return newName;
-}
 function requestToDoTitle() {
   const newTitle = prompt("Give your to-do a title!", "Nothing Yet To Do");
   return newTitle;
@@ -44,27 +40,53 @@ function requestToDoDescription() {
   const newDescription = prompt("Description:", "");
   return newDescription;
 }
+
+//display the UI
 const main = document.querySelector("#main");
 function showProjects() {
   main.innerHTML = "";
   projects.forEach((project) => {
     let projectDisplay = document.createElement("div");
     projectDisplay.className = "project";
-    projectDisplay.textContent = project.name;
+    let projectTitle = document.createElement("h2");
+    projectTitle.textContent = project.name;
 
     let projectToDos = document.createElement("div");
     projectToDos.className = "to-dos-list";
     project.todosList.forEach((toDo) => {
       let toDoDisplay = document.createElement("div");
       toDoDisplay.className = "to-do";
-      let toDoTitle = document.createElement("h3");
+      let toDoTitle = document.createElement("h4");
       toDoTitle.textContent = toDo.title;
       let toDoDescription = document.createElement("p");
       toDoDescription.textContent = toDo.description;
-      toDoDisplay.appendChild(toDoTitle);
-      toDoDisplay.appendChild(toDoDescription);
+      let toDoContent = document.createElement("div");
+      toDoContent.appendChild(toDoTitle);
+      toDoContent.appendChild(toDoDescription);
+      let doneButton = document.createElement("button");
+      doneButton.textContent = "Done";
+      doneButton.addEventListener(
+        "click",
+        () => ((toDo.isComplete = !toDo.isComplete), showProjects())
+      );
+      if (!toDo.isComplete) {
+        doneButton.style.backgroundColor = "#5f7865";
+        doneButton.addEventListener(
+          "mouseenter",
+          () => (doneButton.style.backgroundColor = "#425346")
+        );
+        doneButton.addEventListener(
+          "mouseleave",
+          () => (doneButton.style.backgroundColor = "#5f7865")
+        );
+      }
+
+      toDoDisplay.appendChild(toDoContent);
+      toDoDisplay.appendChild(doneButton);
       projectToDos.appendChild(toDoDisplay);
     });
+
+    projectDisplay.appendChild(projectTitle);
     projectDisplay.appendChild(projectToDos);
 
     let addToDoBtn = document.createElement("button");
@@ -75,15 +97,30 @@ function showProjects() {
     main.appendChild(projectDisplay);
   });
 }
-const addProjectBtn = document.querySelector("#create-project");
-addProjectBtn.addEventListener("click", addProject);
 
-////////////////Combination////////////////
-function addProject() {
-  const projectName = requestProjectName();
+//add Project
+const projectDialog = document.querySelector("#project-dialog");
+const projectDialogForm = document.querySelector("#project-dialog-form");
+const projectCloseButton = document.querySelector("#project-close-button");
+const addProjectBtn = document.querySelector("#create-project");
+projectDialogForm.addEventListener("submit", (event) => {
+  event.preventDefault(); // Prevent the dialog from closing immediately
+  const formData = new FormData(projectDialogForm);
+  const projectName = formData.get("name");
+
   createProject(projectName);
   showProjects();
-}
+  projectDialog.close();
+});
+projectCloseButton.addEventListener("click", (e) => {
+  e.preventDefault();
+  projectDialog.close();
+});
+addProjectBtn.addEventListener("click", () => {
+  projectDialog.showModal();
+});
+
+////////////////Combination////////////////
 function addToDo(parentProject) {
   const toDoTitle = requestToDoTitle();
   const toDoDescription = requestToDoDescription();
@@ -91,7 +128,7 @@ function addToDo(parentProject) {
   showProjects();
 }
 function initializeEmptyProject() {
-  createProject("Default");
+  createProject("Default Project");
   showProjects();
 }
 

@@ -50,10 +50,14 @@ html {
   margin-bottom: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Styling for to-do titles */
-.to-do h3 {
+.to-do h4 {
   color: #333;
   margin-bottom: 5px;
 }
@@ -101,4 +105,66 @@ button:hover {
   .to-do {
     padding: 15px;
   }
+}
+
+dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid black;
+  border-radius: 20px;
+  padding: 40px;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 200px;
+}
+form div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+}
+form div button {
+  cursor: pointer;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgb(201, 0, 0);
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+form div button:hover {
+  background-color: rgb(175, 0, 0);
+}
+form div input {
+  cursor: pointer;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #28a745;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+form div input:hover {
+  background-color: #218838;
+}
+
+::backdrop {
+  background-image: linear-gradient(
+    45deg,
+    magenta,
+    rebeccapurple,
+    dodgerblue,
+    green
+  );
+  opacity: 0.5;
 }
