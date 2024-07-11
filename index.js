@@ -31,16 +31,6 @@ function createToDo(parentProject, title, description) {
   parentProject.todosList.push(newToDo);
 }
 
-////////////////DOM Manipulations////////////////
-function requestToDoTitle() {
-  const newTitle = prompt("Give your to-do a title!", "Nothing Yet To Do");
-  return newTitle;
-}
-function requestToDoDescription() {
-  const newDescription = prompt("Description:", "");
-  return newDescription;
-}
-
 //display the UI
 const main = document.querySelector("#main");
 function showProjects() {
@@ -98,35 +88,69 @@ function showProjects() {
   });
 }
 
-//add Project
+/////////////add Project////////////////////
 const projectDialog = document.querySelector("#project-dialog");
 const projectDialogForm = document.querySelector("#project-dialog-form");
 const projectCloseButton = document.querySelector("#project-close-button");
 const addProjectBtn = document.querySelector("#create-project");
-projectDialogForm.addEventListener("submit", (event) => {
+function handleProjectSubmit(event) {
   event.preventDefault(); // Prevent the dialog from closing immediately
   const formData = new FormData(projectDialogForm);
   const projectName = formData.get("name");
-
   createProject(projectName);
   showProjects();
   projectDialog.close();
-});
-projectCloseButton.addEventListener("click", (e) => {
-  e.preventDefault();
+}
+function handleProjectClose(event) {
+  event.preventDefault();
   projectDialog.close();
-});
+}
 addProjectBtn.addEventListener("click", () => {
+  projectDialogForm.removeEventListener("submit", handleProjectSubmit);
+  projectCloseButton.removeEventListener("click", handleProjectClose);
+
+  projectDialogForm.addEventListener("submit", handleProjectSubmit);
+  projectCloseButton.addEventListener("click", handleProjectClose);
+
   projectDialog.showModal();
 });
 
-////////////////Combination////////////////
-function addToDo(parentProject) {
-  const toDoTitle = requestToDoTitle();
-  const toDoDescription = requestToDoDescription();
-  createToDo(parentProject, toDoTitle, toDoDescription);
+////////////////add to do////////////////
+const toDoDialog = document.querySelector("#to-do-dialog");
+const toDoDialogForm = document.querySelector("#to-do-dialog-form");
+const toDoCloseButton = document.querySelector("#to-do-close-button");
+function handleToDoSubmit(event, project) {
+  event.preventDefault(); // Prevent the dialog from closing immediately
+  const formData = new FormData(toDoDialogForm);
+  const toDoTitle = formData.get("title");
+  const toDoDescription = formData.get("description");
+  createToDo(project, toDoTitle, toDoDescription);
   showProjects();
+  toDoDialog.close();
 }
+function handleToDoClose(event) {
+  event.preventDefault();
+  toDoDialog.close();
+}
+let submitHandler = null;
+function addToDo(project) {
+  if (submitHandler !== null) {
+    toDoDialogForm.removeEventListener("submit", submitHandler); // Remove event listeners to avoid duplicates
+  }
+  submitHandler = (event) => {
+    handleToDoSubmit(event, project);
+    /* special treatment for handleToDoSubmit since:
+    "In JavaScript, when you use an anonymous function (like the arrow function in the removeEventListener call), it's considered a different reference from any other function, including itself when recreated. This means that the function provided to removeEventListener must be the exact same instance (reference) as the one provided to addEventListener for it to be removed."*/
+  };
+  toDoCloseButton.removeEventListener("click", handleToDoClose);
+
+  toDoDialogForm.addEventListener("submit", submitHandler);
+  toDoCloseButton.addEventListener("click", handleToDoClose);
+
+  toDoDialog.showModal();
+}
+
+//empty project
 function initializeEmptyProject() {
   createProject("Default Project");
   showProjects();

@@ -17,7 +17,18 @@
         </div>
       </form>
     </dialog>
-    <dialog id="to-do-dialog"></dialog>
+    <dialog id="to-do-dialog">
+      <form method="dialog" id="to-do-dialog-form">
+        <label>Title:<input type="text" name="title" required /></label>
+        <label
+          >Description:<input type="text" name="description" required
+        /></label>
+        <div>
+          <input type="submit" id="submit" value="Submit" />
+          <button autofocus id="to-do-close-button">Close</button>
+        </div>
+      </form>
+    </dialog>
     <div id="main"></div>
     <button id="create-project">Create Project</button>
   </body>
