@@ -168,3 +168,8 @@ form div input:hover {
   );
   opacity: 0.5;
 }
+.project-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

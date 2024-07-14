@@ -1,11 +1,21 @@
 let projects = [];
+const today = new Date();
+const todayFormattedToISO8601 =
+  today.getFullYear() +
+  "-" +
+  ("0" + (today.getMonth() + 1)).slice(-2) +
+  "-" +
+  ("0" + today.getDate()).slice(-2);
+
 class Project {
   name = "Unknown";
   todosList = [];
+  dueDate = "";
   opened = true;
-  constructor(name, todosList) {
+  constructor(name, todosList, dueDate) {
     this.name = name;
     this.todosList = todosList;
+    this.dueDate = dueDate;
   }
 }
 class ToDo {
@@ -22,8 +32,8 @@ class ToDo {
 }
 
 ////////////////Functionality////////////////
-function createProject(name) {
-  let newProject = new Project(name, []);
+function createProject(name, dueDate) {
+  let newProject = new Project(name, [], dueDate);
   projects.push(newProject);
 }
 function createToDo(parentProject, title, description) {
@@ -33,13 +43,33 @@ function createToDo(parentProject, title, description) {
 
 //display the UI
 const main = document.querySelector("#main");
+function compareISO8601dates(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+
+  const diffInMilliseconds = d2 - d1;
+
+  // Convert milliseconds to days (1 day = 24 hours * 60 minutes * 60 seconds * 1000 milliseconds)
+  const diffInDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
+
+  return Math.round(diffInDays); // Return the difference in days, rounded to the nearest whole number
+}
 function showProjects() {
   main.innerHTML = "";
   projects.forEach((project) => {
     let projectDisplay = document.createElement("div");
     projectDisplay.className = "project";
+    let projectHeader = document.createElement("div");
+    projectHeader.className = "project-header";
     let projectTitle = document.createElement("h2");
     projectTitle.textContent = project.name;
+    let daysLeft = compareISO8601dates(
+      todayFormattedToISO8601,
+      project.dueDate
+    );
+    let daysDisplay = document.createElement("div");
+    daysDisplay.textContent = `Deadline in ${daysLeft} days`;
+    projectHeader.appendChild(projectTitle);
 
     let projectToDos = document.createElement("div");
     projectToDos.className = "to-dos-list";
@@ -76,7 +106,9 @@ function showProjects() {
       projectToDos.appendChild(toDoDisplay);
     });
 
-    projectDisplay.appendChild(projectTitle);
+    projectHeader.appendChild(projectTitle);
+    projectHeader.appendChild(daysDisplay);
+    projectDisplay.appendChild(projectHeader);
     projectDisplay.appendChild(projectToDos);
 
     let addToDoBtn = document.createElement("button");
@@ -97,7 +129,8 @@ function handleProjectSubmit(event) {
   event.preventDefault(); // Prevent the dialog from closing immediately
   const formData = new FormData(projectDialogForm);
   const projectName = formData.get("name");
-  createProject(projectName);
+  const projectDueDate = formData.get("date").toString();
+  createProject(projectName, projectDueDate); // add daysLeft!!!!!!!!!!!
   showProjects();
   projectDialog.close();
 }
@@ -139,7 +172,7 @@ function addToDo(project) {
   }
   submitHandler = (event) => {
     handleToDoSubmit(event, project);
-    /* special treatment for handleToDoSubmit since:
+    /* special treatment for handleToDoSubmit since it also requires a parent project as a parameter:
     "In JavaScript, when you use an anonymous function (like the arrow function in the removeEventListener call), it's considered a different reference from any other function, including itself when recreated. This means that the function provided to removeEventListener must be the exact same instance (reference) as the one provided to addEventListener for it to be removed."*/
   };
   toDoCloseButton.removeEventListener("click", handleToDoClose);
@@ -152,7 +185,7 @@ function addToDo(project) {
 
 //empty project
 function initializeEmptyProject() {
-  createProject("Default Project");
+  createProject("Default Project", todayFormattedToISO8601);
   showProjects();
 }
 
