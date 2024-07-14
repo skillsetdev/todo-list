@@ -1,4 +1,5 @@
-let projects = [];
+let emptyProjectInitialized = false;
+let projects = getProjects();
 const today = new Date();
 const todayFormattedToISO8601 =
   today.getFullYear() +
@@ -29,16 +30,6 @@ class ToDo {
     this.description = description;
     this.priority = priority;
   }
-}
-
-////////////////Functionality////////////////
-function createProject(name, dueDate) {
-  let newProject = new Project(name, [], dueDate);
-  projects.push(newProject);
-}
-function createToDo(parentProject, title, description) {
-  let newToDo = new ToDo(title, description, false);
-  parentProject.todosList.push(newToDo);
 }
 
 //display the UI
@@ -120,6 +111,41 @@ function showProjects() {
   });
 }
 
+/////////Save Projects in local storage/////////
+
+function storeProjects(projectsArray) {
+  const projectsString = JSON.stringify(projectsArray);
+
+  window.localStorage.setItem("projects", projectsString);
+}
+function getProjects() {
+  const projectsString = window.localStorage.getItem("projects");
+
+  if (projectsString && projectsString !== "undefined") {
+    try {
+      const projectsArray = JSON.parse(projectsString);
+      emptyProjectInitialized = true;
+      return projectsArray;
+    } catch (e) {
+      // If JSON.parse fails, return an empty array as a fallback
+      console.error("Error parsing projects from localStorage:", e);
+      return [];
+    }
+  } else {
+    return [];
+  }
+}
+////////////////Functionality////////////////
+function createProject(name, dueDate) {
+  let newProject = new Project(name, [], dueDate);
+  projects.push(newProject);
+  storeProjects(projects);
+}
+function createToDo(parentProject, title, description) {
+  let newToDo = new ToDo(title, description, false);
+  parentProject.todosList.push(newToDo);
+  storeProjects(projects);
+}
 /////////////add Project////////////////////
 const projectDialog = document.querySelector("#project-dialog");
 const projectDialogForm = document.querySelector("#project-dialog-form");
@@ -183,9 +209,10 @@ function addToDo(project) {
   toDoDialog.showModal();
 }
 
-//empty project
 function initializeEmptyProject() {
-  createProject("Default Project", todayFormattedToISO8601);
+  if (!emptyProjectInitialized) {
+    createProject("Default Project", todayFormattedToISO8601);
+  }
   showProjects();
 }
 
